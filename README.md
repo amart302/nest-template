@@ -1,98 +1,118 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🧩 Nest Template
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Шаблон API на NestJS с PostgreSQL, Prisma, проверкой переменных окружения, Swagger и единым форматом ответов.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Что входит в шаблон
 
-## Description
+- **Основа:** NestJS и TypeScript.
+- **База данных:** PostgreSQL, Prisma Client и адаптер `@prisma/adapter-pg`.
+- **HTTP API:** настроенный `ValidationPipe`, CORS, Swagger, общий фильтр ошибок и перехватчик ответов.
+- **Конфигурация:** `@nestjs/config` и проверка переменных окружения через Joi.
+- **Стиль кода:** ESLint, Prettier, Husky и `lint-staged`.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Быстрый старт
 
-## Project setup
+Нужны Node.js, npm и доступная база PostgreSQL.
 
 ```bash
-$ npm install
+npm ci
+cp .env.example .env
 ```
 
-## Compile and run the project
+Укажите в `.env` действительный `DATABASE_URL` и замените пример `JWT_ACCESS_SECRET` своим секретом длиной не менее 16 символов. Остальные переменные описаны ниже. После настройки окружения сгенерируйте Prisma Client:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npx prisma generate
 ```
 
-## Run tests
+Если в проекте есть миграции, примените их к базе:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npx prisma migrate deploy
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Запустите приложение:
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npm run start:dev
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+По умолчанию API доступен на `http://localhost:3001`, документация Swagger — на `http://localhost:3001/docs`.
 
-## Resources
+## Переменные окружения
 
-Check out a few resources that may come in handy when working with NestJS:
+Пример значений находится в `.env.example`. При запуске приложение проверяет обязательные переменные и завершает работу с ошибкой, если они некорректны.
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+| Переменная              | Назначение                                     |
+| ----------------------- | ---------------------------------------------- |
+| `PORT`                  | Порт API; по умолчанию `3001`                  |
+| `DATABASE_URL`          | Строка подключения к PostgreSQL                |
+| `JWT_ACCESS_SECRET`     | Секрет для access-токенов; минимум 16 символов |
+| `JWT_ACCESS_EXPIRES_IN` | Срок действия access-токена в секундах         |
+| `FRONTEND_URL`          | Разрешённый адрес фронтенда для CORS           |
 
-## Support
+JWT-переменные уже обязательны при запуске, но модуль авторизации в шаблоне пока не реализован.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## Структура проекта
 
-## Stay in touch
+```text
+prisma/
+├── schema.prisma        # схема базы данных
+└── migrations/          # миграции после их создания
+src/
+├── common/
+│   ├── config/          # проверка окружения и настройки Swagger
+│   ├── filters/         # общий фильтр ошибок
+│   └── interceptors/    # общий формат успешных ответов
+├── prisma/              # модуль и сервис доступа к базе данных
+├── app.controller.ts    # корневой контроллер
+├── app.module.ts        # корневой модуль
+├── app.service.ts       # корневой сервис
+└── main.ts              # запуск приложения и глобальные настройки HTTP
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Новые предметные области удобно оформлять отдельными модулями внутри `src`. DTO и связанные с модулем сервисы размещайте рядом с его контроллером. Код, используемый несколькими модулями и не относящийся к конкретной предметной области, выносите в `src/common`.
 
-## License
+## Команды
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Команда                                        | Назначение                                           |
+| ---------------------------------------------- | ---------------------------------------------------- |
+| `npm run start`                                | Запуск приложения                                    |
+| `npm run start:dev`                            | Запуск с перезапуском при изменениях                 |
+| `npm run build`                                | Сборка в `dist`                                      |
+| `npm run start:prod`                           | Запуск ранее собранного приложения                   |
+| `npm run format`                               | Исправление форматирования TypeScript-файлов в `src` |
+| `npm run lint`                                 | Проверка TypeScript-файлов в `src` через ESLint      |
+| `npx prisma generate`                          | Генерация Prisma Client                              |
+| `npx prisma migrate dev --name <имя_миграции>` | Создание и применение миграции в разработке          |
+| `npx prisma migrate deploy`                    | Применение существующих миграций                     |
+
+Prisma Client создаётся в `src/generated/prisma` и не хранится в Git. После изменения `prisma/schema.prisma` сгенерируйте его заново.
+
+Для запуска собранного приложения:
+
+```bash
+npx prisma generate
+npm run build
+npm run start:prod
+```
+
+## Проверки перед коммитом
+
+При `npm ci` скрипт `prepare` подключает Husky. Во время `git commit` hook запускает `lint-staged`: Prettier форматирует подготовленные к коммиту `.ts`-файлы из `src`, затем ESLint проверяет их. Исправленное форматирование включается в коммит; ошибка ESLint останавливает коммит.
+
+Для ручной проверки всего исходного кода без изменения файлов:
+
+```bash
+npm run lint
+npx prettier --check "src/**/*.ts"
+npx tsc -p tsconfig.json --noEmit --incremental false
+```
+
+## Стиль кода
+
+Для файлов и каталогов используйте `kebab-case`, для классов — `PascalCase`, для переменных и функций — `camelCase`. Форматирование определяет Prettier, а правила качества кода — ESLint; перед коммитом они применяются к подготовленным TypeScript-файлам автоматически.
+
+В Prisma называйте модели в `PascalCase`, а их поля — в `camelCase`. Названия таблиц в PostgreSQL задавайте в `snake_case` через `@@map`.
+
+В IDE можно включить форматирование Prettier при сохранении. Комментарии добавляйте там, где они объясняют причину решения или неочевидное поведение; очевидный код не требует пересказа.
