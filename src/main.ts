@@ -11,6 +11,8 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableShutdownHooks();
+
   app.enableCors({
     origin: ['http://localhost:3000', process.env.FRONTEND_URL],
     credentials: true,
@@ -43,4 +45,6 @@ bootstrap().catch((error: unknown) => {
   } else {
     logger.error(`Application bootstrap failed (${String(error)})`);
   }
+
+  process.exitCode = 1;
 });
