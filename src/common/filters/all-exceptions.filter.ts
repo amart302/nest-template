@@ -21,29 +21,37 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const response =
+    const exceptionResponse =
       exception instanceof HttpException ? exception.getResponse() : null;
 
+    const INTERNAL_SERVER_ERROR_MESSAGE = 'Внутренняя ошибка сервера';
     let rawMessage: unknown;
 
-    if (
-      typeof response === 'object' &&
-      response !== null &&
-      'message' in response
-    ) {
-      rawMessage = response.message;
-    } else {
+    if (status >= 500) {
       if (exception instanceof Error) {
         this.logger.error('Unhandled exception', exception.stack);
       } else {
         this.logger.error(`Unhandled exception (${String(exception)})`);
       }
 
-      rawMessage = 'Внутренняя ошибка сервера';
+      rawMessage = INTERNAL_SERVER_ERROR_MESSAGE;
+    } else if (typeof exceptionResponse === 'string') {
+      rawMessage = exceptionResponse;
+    } else if (
+      typeof exceptionResponse === 'object' &&
+      exceptionResponse !== null &&
+      'message' in exceptionResponse
+    ) {
+      rawMessage = exceptionResponse.message;
+    } else {
+      rawMessage =
+        exception instanceof HttpException
+          ? exception.message
+          : INTERNAL_SERVER_ERROR_MESSAGE;
     }
 
     const message = Array.isArray(rawMessage)
-      ? String(rawMessage[0])
+      ? rawMessage.map(String).join('; ')
       : String(rawMessage);
 
     res.status(status).json({
