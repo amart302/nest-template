@@ -14,6 +14,7 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "husky",
+    "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
     "prisma:generate": "prisma generate",
     "postinstall": "npm run prisma:generate"
   },
