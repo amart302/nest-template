@@ -19,11 +19,7 @@ npm ci
 cp .env.example .env
 ```
 
-Укажите в `.env` действительный `DATABASE_URL`. Остальные переменные описаны ниже. После настройки окружения сгенерируйте Prisma Client:
-
-```bash
-npx prisma generate
-```
+При установке зависимостей `postinstall` автоматически генерирует Prisma Client. Укажите в `.env` действительный `DATABASE_URL`. Остальные переменные описаны ниже.
 
 Если в проекте есть миграции, примените их к базе:
 
@@ -83,16 +79,15 @@ src/
 | `npm run start:prod`                           | Запуск ранее собранного приложения                   |
 | `npm run format`                               | Исправление форматирования TypeScript-файлов в `src` |
 | `npm run lint`                                 | Проверка TypeScript-файлов в `src` через ESLint      |
-| `npx prisma generate`                          | Генерация Prisma Client                              |
+| `npm run prisma:generate`                      | Генерация Prisma Client                              |
 | `npx prisma migrate dev --name <имя_миграции>` | Создание и применение миграции в разработке          |
 | `npx prisma migrate deploy`                    | Применение существующих миграций                     |
 
-Prisma Client создаётся в `src/generated/prisma` и не хранится в Git. После изменения `prisma/schema.prisma` сгенерируйте его заново.
+Prisma Client создаётся в `src/generated/prisma` и не хранится в Git. После изменения `prisma/schema.prisma` сгенерируйте его заново командой `npm run prisma:generate`.
 
 Для запуска собранного приложения:
 
 ```bash
-npx prisma generate
 npm run build
 npm run start:prod
 ```

@@ -14,7 +14,8 @@
     "start:prod": "node dist/main",
     "lint": "eslint \"src/**/*.ts\"",
     "prepare": "husky",
-    "postinstall": "prisma skills sync || exit 0"
+    "prisma:generate": "prisma generate",
+    "postinstall": "npm run prisma:generate"
   },
   "lint-staged": {
     "src/**/*.ts": [
