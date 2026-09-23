@@ -51,7 +51,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     const message = Array.isArray(rawMessage)
-      ? rawMessage.map(String).join('; ')
+      ? rawMessage.map(String)
       : String(rawMessage);
 
     res.status(status).json({
