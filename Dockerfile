@@ -1,4 +1,4 @@
-FROM node:24-bookworm-slim AS build
+FROM node:26-bookworm-slim AS build
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends openssl \
@@ -14,7 +14,7 @@ COPY . .
 RUN npm run prisma:generate
 RUN npm run build
 
-FROM node:24-bookworm-slim AS production
+FROM node:26-bookworm-slim AS production
 
 WORKDIR /app
 
