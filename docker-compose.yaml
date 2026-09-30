@@ -11,9 +11,22 @@ services:
     environment:
       DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}
     depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    environment:
+      DATABASE_URL: postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@postgres:5432/${DATABASE_NAME}
+    command: ['npm', 'run', 'prisma:migrate:deploy']
+    restart: no
+    depends_on:
       postgres:
         condition: service_healthy
-
+    
   postgres:
     image: postgres:17
     restart: unless-stopped

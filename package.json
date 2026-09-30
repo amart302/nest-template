@@ -20,6 +20,8 @@
     "prepare": "husky",
     "typecheck": "tsc -p tsconfig.json --noEmit --incremental false",
     "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "postinstall": "npm run prisma:generate"
   },
   "lint-staged": {
