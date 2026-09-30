@@ -1,7 +1,12 @@
-# compiled output
-/dist
+# Dependencies
 /node_modules
+
+# Compiled output
+/dist
 /build
+
+# Git
+/.git
 
 # Logs
 logs
@@ -12,12 +17,14 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# OS
-.DS_Store
-
 # Tests
 /coverage
 /.nyc_output
+
+# Environment variables
+.env
+.env.*
+!.env.example
 
 # IDEs and editors
 /.idea
@@ -35,14 +42,10 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# OS
+.DS_Store
 
-# temp directory
+# Temporary files
 .temp
 .tmp
 
@@ -52,14 +55,14 @@ pids
 *.seed
 *.pid.lock
 
-# Diagnostic reports (https://nodejs.org/api/report.html)
+# Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Prisma
 /src/generated/
 
 # Uploads
-uploads/
+/uploads
 
 # TypeScript cache
 *.tsbuildinfo
