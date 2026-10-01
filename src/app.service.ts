@@ -4,7 +4,7 @@ import type { ServiceMessageResponse } from './common/types/service-response.typ
 
 @Injectable()
 export class AppService {
-  getHello(): ServiceMessageResponse {
+  healthCheck(): ServiceMessageResponse {
     return {
       message: 'Hello World!',
     };
