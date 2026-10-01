@@ -13,15 +13,13 @@ async function bootstrap() {
 
   app.enableShutdownHooks();
 
+  app.setGlobalPrefix('api');
+
   app.enableCors({
     origin: ['http://localhost:3000', process.env.FRONTEND_URL],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
-
-  app.useGlobalInterceptors(new ResponseInterceptor());
-
-  app.useGlobalFilters(new AllExceptionsFilter());
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -31,12 +29,16 @@ async function bootstrap() {
     }),
   );
 
-  const config = createSwaggerConfig();
-  const document = SwaggerModule.createDocument(app, config);
+  app.useGlobalInterceptors(new ResponseInterceptor());
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  const swaggerConfig = createSwaggerConfig();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
   await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap().catch((error: unknown) => {
   const logger = new Logger('Bootstrap');
 
