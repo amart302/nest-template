@@ -28,6 +28,7 @@ export class PrismaService
       this.logger.log('Database connection started');
 
       await this.$connect();
+      await this.$queryRaw`SELECT 1`;
 
       this.logger.log('Database connection completed successfully');
     } catch (error: unknown) {
