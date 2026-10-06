@@ -3,10 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import process from 'process';
 
+import { createSwaggerConfig } from '@/common/config/swagger.config';
+import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';
+import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
+
 import { AppModule } from './app.module';
-import { createSwaggerConfig } from './common/config/swagger.config';
-import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -3,10 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
+import { envValidationSchema } from '@/common/config/env.validation';
+import { PrismaModule } from '@/prisma/prisma.module';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { envValidationSchema } from './common/config/env.validation';
-import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
