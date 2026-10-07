@@ -30,12 +30,6 @@
       "eslint"
     ]
   },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "prettier --write",
-      "eslint"
-    ]
-  },
   "dependencies": {
     "@nestjs/common": "^12.0.3",
     "@nestjs/config": "^12.0.0",
@@ -58,6 +52,7 @@
     "@nestjs/schematics": "^12.0.2",
     "@types/express": "^5.0.0",
     "@types/node": "^26.6.3",
+    "dotenv": "^18.0.6",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
