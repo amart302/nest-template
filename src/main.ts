@@ -1,4 +1,5 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import process from 'process';
@@ -11,13 +12,17 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
 
   app.enableShutdownHooks();
 
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: ['http://localhost:3000', process.env.FRONTEND_URL],
+    origin: [
+      'http://localhost:3000',
+      configService.get<string>('FRONTEND_URL'),
+    ].filter((item): item is string => Boolean(item)),
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
@@ -38,7 +43,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(configService.getOrThrow<number>('PORT'));
 }
 
 bootstrap().catch((error: unknown) => {
