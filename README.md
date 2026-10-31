@@ -9,6 +9,7 @@
 - **Docker:** Dockerfile для сборки API на Node.js 26 и Docker Compose для запуска PostgreSQL 17, применения миграций и запуска API.
 - **HTTP API:** настроенный `ValidationPipe`, CORS, Swagger, общий фильтр ошибок и перехватчик ответов.
 - **Конфигурация:** `@nestjs/config` и проверка переменных окружения через Joi.
+- **Авторизация:** JWT-модуль, `AuthGuard`, декораторы `@Auth()` и `@CurrentUser()`.
 - **Стиль кода:** ESLint, Prettier, Husky и `lint-staged`.
 
 ## 🚀 Быстрый старт
@@ -66,7 +67,9 @@ Compose собирает образы по `Dockerfile` и запускает с
 
 API доступен на `http://localhost:3001`, Swagger — на `http://localhost:3001/docs`. Локальный API на этом же порту перед запуском контейнера нужно остановить.
 
-В контейнер API передаются переменные из `.env`, но `DATABASE_URL` переопределяется в Compose: адрес базы внутри сети контейнеров — `postgres:5432`. В самом `.env` оставьте `localhost:5432` для локальной разработки. Текущая публикация портов рассчитана на `PORT=3001`; при его изменении обновите также `ports` сервиса `api`.
+В контейнер API передаются переменные из `.env`, но `DATABASE_URL` переопределяется в Compose: адрес базы внутри сети контейнеров — `postgres:5432`. В самом `.env` оставьте `localhost:5432` для локальной разработки. Публикация порта API использует `${PORT:-3001}`: при изменении `PORT` в `.env` меняются и порт приложения, и опубликованный порт хоста. Адреса выше приведены для значения по умолчанию `3001`.
+
+Порт PostgreSQL опубликован только на `127.0.0.1:5432`, а порт API — на всех сетевых интерфейсах хоста. Для доступа к API только с этого компьютера укажите в `ports` сервиса `api` значение `127.0.0.1:${PORT:-3001}:${PORT:-3001}`.
 
 Dockerfile отдельно собирает NestJS и генерирует Prisma Client, затем переносит `dist` в финальный образ с production-зависимостями. Приложение запускается от пользователя `node`. `.dockerignore` исключает из контекста сборки локальные зависимости, готовую сборку и `.env`.
 
@@ -115,6 +118,45 @@ npm run prisma:generate
 | `DATABASE_PASSWORD` | Пароль пользователя PostgreSQL для Compose         |
 | `DATABASE_NAME`     | Название базы, создаваемой через Compose           |
 | `FRONTEND_URL`      | Разрешённый адрес фронтенда для CORS               |
+| `JWT_ACCESS_SECRET` | Секрет подписи access-токенов, минимум 16 символов |
+| `JWT_ACCESS_EXPIRES_IN` | Срок действия access-токена в секундах, положительное целое число |
+
+Значения секретов и паролей в `.env.example` приведены для примера. Перед развёртыванием задайте собственные значения; для `JWT_ACCESS_SECRET` используйте случайно сгенерированный секрет.
+
+## Авторизация
+
+`JwtAuthModule` подключён глобально и предоставляет `JwtService` с секретом и сроком действия из переменных окружения. В шаблоне подготовлена проверка access-токенов; вход, регистрация, выдача и обновление токенов, выход и проверка пользователя в базе пока не реализованы.
+
+Для защиты маршрута или всего контроллера добавьте `@Auth()`. Guard ожидает заголовок `Authorization: Bearer <access_token>`, проверяет подпись JWT, срок действия при наличии `exp` и непустой строковый `sub`. После проверки в `request.user` записывается `{ sub }`, доступный через `@CurrentUser()`.
+
+```ts
+import { Controller, Get } from '@nestjs/common';
+
+import { Auth } from '@/common/decorators/auth.decorator';
+import { CurrentUser } from '@/common/decorators/current-user.decorator';
+import type { AuthUser } from '@/common/types/auth-user.types';
+
+@Controller('profile')
+export class ProfileController {
+  @Get()
+  @Auth()
+  getProfile(@CurrentUser() user: AuthUser) {
+    return user;
+  }
+}
+```
+
+Этот контроллер приведён как пример и не включён в шаблон. Маршруты без `@Auth()` остаются публичными; текущий health-маршрут также публичный. `@CurrentUser()` сам по себе не защищает маршрут и без guard может вернуть `undefined`.
+
+В Swagger нажмите **Authorize** и вставьте JWT без префикса `Bearer`: Swagger добавит его к запросам защищённых маршрутов. Декоратор `@Auth()` также документирует ответ `401`. При ошибке авторизации API возвращает:
+
+```json
+{
+  "success": false,
+  "statusCode": 401,
+  "message": "Пожалуйста, авторизуйтесь"
+}
+```
 
 ## Ошибки валидации
 
@@ -193,8 +235,12 @@ prisma/
 src/
 ├── common/
 │   ├── config/          # проверка окружения и настройки Swagger
+│   ├── decorators/      # защита маршрутов и получение текущего пользователя
+│   ├── dto/             # общие DTO пагинации и поиска
 │   ├── filters/         # общий фильтр ошибок
+│   ├── guards/          # проверка access-токенов
 │   ├── interceptors/    # общий формат успешных ответов
+│   ├── modules/         # глобальный JWT-модуль
 │   ├── transformers/    # нормализация входных значений DTO
 │   └── types/           # общие типы и интерфейсы
 ├── prisma/              # модуль и сервис доступа к базе данных
@@ -212,15 +258,21 @@ src/
 | ------------------------------------------------- | ---------------------------------------------------- |
 | `npm run start`                                   | Запуск приложения                                    |
 | `npm run start:dev`                               | Запуск с перезапуском при изменениях                 |
+| `npm run start:debug`                             | Запуск с отладчиком Node.js и перезапуском при изменениях |
 | `npm run build`                                   | Сборка в `dist`                                      |
 | `npm run start:prod`                              | Запуск ранее собранного приложения                   |
 | `npm run format`                                  | Исправление форматирования TypeScript-файлов в `src` |
 | `npm run lint`                                    | Проверка TypeScript-файлов в `src` через ESLint      |
+| `npm run typecheck`                               | Проверка типов без генерации файлов                 |
 | `npm run prisma:generate`                         | Генерация Prisma Client                              |
+| `npm run prisma:db:push`                          | Синхронизация схемы с базой без создания миграций     |
+| `npm run prisma:studio`                           | Запуск Prisma Studio для просмотра и редактирования данных |
 | `npm run prisma:migrate -- --name <имя_миграции>` | Создание и применение миграции в разработке          |
 | `npm run prisma:migrate:deploy`                   | Применение существующих миграций                     |
 
 Prisma Client создаётся в `src/generated/prisma` и не хранится в Git. После изменения `prisma/schema.prisma` сгенерируйте его заново командой `npm run prisma:generate`.
+
+`prisma:db:push` удобно использовать для прототипирования на базе разработки. Эта команда не создаёт историю миграций и не заменяет `prisma:migrate` и `prisma:migrate:deploy` в процессе развёртывания. После неё отдельно выполните `npm run prisma:generate`.
 
 Для запуска собранного приложения:
 
@@ -238,7 +290,7 @@ npm run start:prod
 ```bash
 npm run lint
 npx prettier --check "src/**/*.ts"
-npx tsc -p tsconfig.json --noEmit --incremental false
+npm run typecheck
 ```
 
 ## Стиль кода
