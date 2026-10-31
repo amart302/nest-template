@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 
-import { AuthUser } from '../types/auth-user.types';
+import type { AuthUser } from '../types/auth-user.types';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -52,8 +52,12 @@ export class AuthGuard implements CanActivate {
       decoded === null ||
       !('sub' in decoded) ||
       typeof decoded.sub !== 'string' ||
-      !decoded.sub
+      !decoded.sub.trim()
     ) {
+      this.logger.warn(
+        `Authentication failed: JWT payload invalid (ip=${req.ip})`,
+      );
+
       throw new UnauthorizedException('Пожалуйста, авторизуйтесь');
     }
 
