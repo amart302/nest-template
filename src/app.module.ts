@@ -4,6 +4,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 
 import { envValidationSchema } from '@/common/config/env.validation';
+import { JwtAuthModule } from '@/common/modules/jwt-auth.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
 import { AppController } from './app.controller';
@@ -21,6 +22,7 @@ import { AppService } from './app.service';
       serveRoot: '/uploads',
     }),
 
+    JwtAuthModule,
     PrismaModule,
   ],
   controllers: [AppController],
