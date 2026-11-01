@@ -10,6 +10,7 @@
 - **HTTP API:** настроенный `ValidationPipe`, CORS, Swagger, общий фильтр ошибок и перехватчик ответов.
 - **Конфигурация:** `@nestjs/config` и проверка переменных окружения через Joi.
 - **Авторизация:** JWT-модуль, `AuthGuard`, декораторы `@Auth()` и `@CurrentUser()`.
+- **Загрузка файлов:** `FileUploadInterceptor` с выбором MIME-типов, лимитом размера и сохранением на диск.
 - **Стиль кода:** ESLint, Prettier, Husky и `lint-staged`.
 
 ## 🚀 Быстрый старт
@@ -158,6 +159,43 @@ export class ProfileController {
 }
 ```
 
+## Загрузка файлов
+
+`FileUploadInterceptor` находится в `src/common/interceptors/file-upload.interceptor.ts` и подключается к отдельным маршрутам через `@UseInterceptors()`. Он принимает один файл из поля `file` в запросе `multipart/form-data`.
+
+Первый аргумент — список разрешённых MIME-типов: `image/jpeg`, `image/png`, `image/webp` или `application/pdf`. Второй аргумент — максимальный размер в байтах; по умолчанию `5 * 1024 * 1024` (5 МиБ).
+
+```ts
+import {
+  BadRequestException,
+  Controller,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+
+import { FileUploadInterceptor } from '@/common/interceptors/file-upload.interceptor';
+
+@Controller('files')
+export class FilesController {
+  @Post()
+  @UseInterceptors(FileUploadInterceptor(['image/jpeg', 'image/png']))
+  upload(@UploadedFile() file: Express.Multer.File | undefined) {
+    if (!file) {
+      throw new BadRequestException('Файл обязателен');
+    }
+
+    return { url: `/uploads/${file.filename}` };
+  }
+}
+```
+
+Контроллер приведён как пример и не включён в шаблон. Чтобы использовать его, добавьте контроллер в соответствующий модуль. Для другого лимита передайте второй аргумент, например `FileUploadInterceptor(['application/pdf'], 10 * 1024 * 1024)`.
+
+Файлы сохраняются в папку `uploads` относительно рабочей директории приложения. Multer создаёт папку автоматически; имя файла формируется из UUID и расширения, соответствующего MIME-типу. Подключённый `ServeStaticModule` делает файлы публично доступными по `/uploads/<имя файла>`. Папка исключена из Git; при развёртывании нужно обеспечить её сохранность и права на запись.
+
+Неподдерживаемый MIME-тип возвращает `400`, превышение размера — `413`. Проверяется MIME-тип, заявленный клиентом, без проверки содержимого файла. Обязательность файла проверяется в контроллере, как в примере выше. Если после загрузки операция в контроллере или сервисе завершится ошибкой, удаление уже сохранённого файла нужно обработать отдельно.
+
 ## Ошибки валидации
 
 Обычные HTTP-ошибки возвращают `message` строкой. Если валидация находит одну или несколько ошибок, `message` содержит массив строк.
@@ -239,7 +277,7 @@ src/
 │   ├── dto/             # общие DTO пагинации и поиска
 │   ├── filters/         # общий фильтр ошибок
 │   ├── guards/          # проверка access-токенов
-│   ├── interceptors/    # общий формат успешных ответов
+│   ├── interceptors/    # формат успешных ответов и загрузка файлов
 │   ├── modules/         # глобальный JWT-модуль
 │   ├── transformers/    # нормализация входных значений DTO
 │   └── types/           # общие типы и интерфейсы
