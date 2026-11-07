@@ -1,8 +1,9 @@
+import process from 'node:process';
+
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
-import process from 'process';
 
 import { createSwaggerConfig } from '@/common/config/swagger.config';
 import { AllExceptionsFilter } from '@/common/filters/all-exceptions.filter';

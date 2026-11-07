@@ -8,11 +8,7 @@ import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
   {
-    ignores: [
-      'eslint.config.mjs',
-      'src/generated/**',
-      'prisma.config.ts'
-    ],
+    ignores: ['eslint.config.mjs', 'src/generated/**', 'prisma.config.ts'],
   },
 
   eslint.configs.recommended,
@@ -25,7 +21,6 @@ export default tseslint.config(
     languageOptions: {
       globals: {
         ...globals.node,
-        ...globals.jest,
       },
       sourceType: 'commonjs',
       parserOptions: {
